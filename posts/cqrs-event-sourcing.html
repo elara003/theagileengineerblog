@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CQRS & Event Sourcing Without the Hype - The Agile Engineer</title>
+  <meta name="description" content="When to use CQRS and Event Sourcing patterns and when to avoid them. A practical guide based on real-world experience.">
+  
+  <!-- Professional CSS styling -->
+  <link rel="stylesheet" href="/styles.css">
+  
+  <!-- Blog JavaScript -->
+  <script src="/js/blog.js"></script>
+</head>
+<body>
+  <blog-header></blog-header>
+
+  <main class="main-container">
+    <article class="content-page">
+      <div class="page-header">
+        <h1>CQRS & Event Sourcing Without the Hype</h1>
+        <p>When to use these patterns and when to avoid them</p>
+      </div>
+
+      <div class="content-section">
+        <h2>The Hype Problem</h2>
+        <p>
+          CQRS (Command Query Responsibility Segregation) and Event Sourcing are often presented as silver bullets 
+          for complex systems. Conference talks make them sound essential for any serious application. Blog posts 
+          show elegant examples that make everything look simple and clean.
+        </p>
+
+        <p>
+          The reality is more nuanced. These patterns solve specific problems well, but they also introduce complexity 
+          that can crush a project if applied inappropriately. After working with both patterns in production systems 
+          over several years, here's my honest assessment of when they're worth it and when they're not.
+        </p>
+
+        <h3>CQRS: The Good, The Bad, and The Ugly</h3>
+        
+        <h4>What CQRS Actually Solves</h4>
+        <p>
+          CQRS is fundamentally about recognizing that reads and writes often have different requirements:
+        </p>
+        <ul>
+          <li><strong>Write models</strong> focus on business rules, validation, and consistency</li>
+          <li><strong>Read models</strong> focus on query efficiency and data presentation</li>
+        </ul>
+
+        <p>
+          When your read and write patterns are significantly different, CQRS can provide real value. But "significantly 
+          different" is the key phrase here.
+        </p>
+
+        <h4>When CQRS Makes Sense</h4>
+        <p>
+          I've found CQRS beneficial in these scenarios:
+        </p>
+        <ul>
+          <li><strong>Complex reporting requirements:</strong> When you need heavily denormalized views for analytics</li>
+          <li><strong>Read/write scaling differences:</strong> When reads vastly outnumber writes (or vice versa)</li>
+          <li><strong>Different consistency requirements:</strong> When reads can be eventually consistent but writes need strong consistency</li>
+          <li><strong>Multiple bounded contexts:</strong> When different parts of the system need different views of the same data</li>
+        </ul>
+
+        <h4>When CQRS Hurts More Than It Helps</h4>
+        <p>
+          Avoid CQRS when:
+        </p>
+        <ul>
+          <li>Your read and write operations are similar in complexity</li>
+          <li>You have a small team that can't handle the operational overhead</li>
+          <li>Your data consistency requirements are straightforward</li>
+          <li>You're building a CRUD application with simple business logic</li>
+        </ul>
+
+        <h3>Event Sourcing: The Promise and the Pain</h3>
+
+        <h4>What Event Sourcing Gets Right</h4>
+        <p>
+          Event sourcing provides several compelling benefits:
+        </p>
+        <ul>
+          <li><strong>Complete audit trail:</strong> Every change is captured as an event</li>
+          <li><strong>Temporal queries:</strong> You can see the state of the system at any point in time</li>
+          <li><strong>Replay capability:</strong> You can rebuild read models from the event stream</li>
+          <li><strong>Integration:</strong> Events can be used for inter-service communication</li>
+        </ul>
+
+        <h4>What Event Sourcing Gets Wrong (In Practice)</h4>
+        <p>
+          The challenges of event sourcing are often underestimated:
+        </p>
+
+        <ul>
+          <li><strong>Schema evolution:</strong> Changing event structures is painful and requires versioning strategies</li>
+          <li><strong>Query complexity:</strong> Simple queries become complex event replays</li>
+          <li><strong>Debugging difficulty:</strong> Understanding current state requires replaying potentially thousands of events</li>
+          <li><strong>Performance characteristics:</strong> Read performance can degrade as event streams grow</li>
+          <li><strong>Operational complexity:</strong> You need robust event store infrastructure and backup/restore strategies</li>
+        </ul>
+
+        <h3>A Real-World Example: E-commerce Order System</h3>
+        <p>
+          Let me share a concrete example from an e-commerce system I worked on. We had to decide whether to use 
+          CQRS and Event Sourcing for the order management system.
+        </p>
+
+        <h4>The Initial Requirements</h4>
+        <ul>
+          <li>Process order submissions with complex business rules</li>
+          <li>Support multiple fulfillment workflows</li>
+          <li>Provide real-time order tracking</li>
+          <li>Generate various reports for business users</li>
+          <li>Integrate with multiple external systems</li>
+        </ul>
+
+        <h4>The Decision Process</h4>
+        <p>
+          We chose to implement CQRS but NOT Event Sourcing. Here's why:
+        </p>
+
+        <p><strong>CQRS made sense because:</strong></p>
+        <ul>
+          <li>Order processing (writes) had complex validation and business rules</li>
+          <li>Order tracking (reads) needed denormalized views for performance</li>
+          <li>Reports required different aggregations than the operational views</li>
+          <li>We could scale reads and writes independently</li>
+        </ul>
+
+        <p><strong>Event Sourcing didn't because:</strong></p>
+        <ul>
+          <li>Order state changes were relatively infrequent</li>
+          <li>The audit requirements could be met with simpler change logging</li>
+          <li>The team wasn't ready for the operational complexity</li>
+          <li>Performance requirements favored simple read models</li>
+        </ul>
+
+        <h4>The Implementation</h4>
+        <p>
+          Our solution used:
+        </p>
+        <ul>
+          <li><strong>Command side:</strong> Domain models with rich business logic, validated writes to PostgreSQL</li>
+          <li><strong>Query side:</strong> Denormalized read models in PostgreSQL (same database, different schema)</li>
+          <li><strong>Synchronization:</strong> Database triggers and a simple event bus for keeping read models up to date</li>
+          <li><strong>Scaling:</strong> Read replicas for the query database</li>
+        </ul>
+
+        <p>
+          This gave us most of the benefits of CQRS without the complexity of event sourcing.
+        </p>
+
+        <h3>Practical Guidelines</h3>
+
+        <h4>Start Simple</h4>
+        <p>
+          Begin with a traditional approach and evolve toward CQRS only when you have evidence that you need it. 
+          The problems CQRS solves will be obvious when you encounter them.
+        </p>
+
+        <h4>CQRS Without Event Sourcing</h4>
+        <p>
+          Consider CQRS with traditional state storage first. You can always add event sourcing later if you need 
+          the audit trail and temporal query capabilities.
+        </p>
+
+        <h4>Event Sourcing Checklist</h4>
+        <p>
+          Only consider event sourcing if you can answer "yes" to most of these:
+        </p>
+        <ul>
+          <li>Do you have genuine audit and compliance requirements?</li>
+          <li>Do you need to replay business processes?</li>
+          <li>Is your team experienced with event-driven architectures?</li>
+          <li>Can you invest in proper event store infrastructure?</li>
+          <li>Are you prepared for the debugging and operational challenges?</li>
+        </ul>
+
+        <h3>Tools and Technologies</h3>
+        <p>
+          If you do decide to implement these patterns, here are some technology choices to consider:
+        </p>
+
+        <h4>For CQRS:</h4>
+        <ul>
+          <li><strong>Simple approach:</strong> Same database, different schemas/tables</li>
+          <li><strong>Different databases:</strong> PostgreSQL for writes, Elasticsearch for reads</li>
+          <li><strong>Message bus:</strong> Apache Kafka, Amazon SQS, Azure Service Bus</li>
+        </ul>
+
+        <h4>For Event Sourcing:</h4>
+        <ul>
+          <li><strong>Dedicated event stores:</strong> EventStore, Apache Kafka, Amazon DynamoDB</li>
+          <li><strong>Framework support:</strong> Axon Framework (Java), EventFlow (.NET), Commanded (Elixir)</li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        <p>
+          CQRS and Event Sourcing are powerful patterns, but they're not universally applicable. The key is to 
+          understand the problems they solve and honestly assess whether those are the problems you actually have.
+        </p>
+
+        <p>
+          Most systems don't need the complexity these patterns introduce. When you do need them, implement them 
+          incrementally and be prepared for the operational overhead they bring. The goal is solving real problems, 
+          not implementing fashionable patterns.
+        </p>
+
+        <p>
+          Remember: boring technology that works is almost always better than exciting technology that doesn't.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>Further Reading</h2>
+        <ul>
+          <li>Martin Fowler's original CQRS article</li>
+          <li>"Versioning in an Event Sourced System" by Greg Young</li>
+          <li>"Building Event-Driven Microservices" by Adam Bellemare</li>
+        </ul>
+      </div>
+    </article>
+  </main>
+
+  <blog-footer></blog-footer>
+</body>
+</html>

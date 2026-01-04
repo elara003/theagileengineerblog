@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:blog="https://theagileengineerblog.com/blog-sitemap-extension">
+
+  <!-- Home -->
+  <url>
+    <loc>/</loc>
+    <lastmod>2024-11-30</lastmod>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>/about</loc>
+    <lastmod>2024-11-30</lastmod>
+  </url>
+
+  <!-- Resume -->
+  <url>
+    <loc>/resume</loc>
+    <lastmod>2024-11-30</lastmod>
+  </url>
+
+  <!-- Blog posts -->
+  <url>
+    <loc>/posts/hands-on-vs-ivory-tower-architecture.html</loc>
+    <lastmod>2024-11-30</lastmod>
+    <blog:title>Hexagonal Architecture in Real Systems</blog:title>
+  </url>
+
+  <url>
+    <loc>/posts/cqrs-event-sourcing.html</loc>
+    <lastmod>2024-11-25</lastmod>
+    <blog:title>CQRS &amp; Event Sourcing Without the Hype</blog:title>
+  </url>
+
+    <url>
+    <loc>/posts/cqrs-event-sourcing.html</loc>
+    <lastmod>2024-11-25</lastmod>
+    <blog:title>CQRS &amp; Event Sourcing Without the Hype</blog:title>
+  </url>
+
+</urlset>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexagonal Architecture in Real Systems - The Agile Engineer</title>
+  <meta name="description" content="Moving beyond the diagrams to practical implementation of Hexagonal Architecture patterns in production systems.">
+  
+  <!-- Professional CSS styling -->
+  <link rel="stylesheet" href="/styles.css">
+  
+  <!-- Blog JavaScript -->
+  <script src="/js/blog.js"></script>
+</head>
+<body>
+  <blog-header></blog-header>
+
+  <main class="main-container">
+    <article class="content-page">
+      <div class="page-header">
+        <h1>Hexagonal Architecture in Real Systems</h1>
+        <p>Moving beyond the diagrams to practical implementation</p>
+      </div>
+
+      <div class="content-section">
+        <h2>The Promise vs. The Reality</h2>
+        <p>
+          Hexagonal Architecture (also known as Ports and Adapters) promises clean separation of concerns, 
+          testable code, and technology-agnostic business logic. The diagrams look beautiful. The theory is sound. 
+          But what happens when you try to implement it in a real system with real constraints?
+        </p>
+
+        <p>
+          After implementing hexagonal architecture across multiple production systems, I've learned that the 
+          gap between theory and practice is where the real engineering happens. This post explores that gap 
+          and provides practical guidance for making hexagonal architecture work in the real world.
+        </p>
+
+        <h3>What Hexagonal Architecture Actually Solves</h3>
+        <p>
+          Before diving into implementation details, let's be clear about what problems hexagonal architecture 
+          actually solves:
+        </p>
+        <ul>
+          <li><strong>Testability:</strong> Business logic can be tested without external dependencies</li>
+          <li><strong>Technology Independence:</strong> Core logic doesn't depend on specific frameworks</li>
+          <li><strong>Maintainability:</strong> Changes to external systems don't ripple through business logic</li>
+          <li><strong>Flexibility:</strong> Different adapters for different contexts (web, CLI, batch processing)</li>
+        </ul>
+
+        <h3>The Implementation Reality Check</h3>
+        <p>
+          In practice, implementing hexagonal architecture requires making decisions that the theory doesn't 
+          address. Here are the key challenges I've encountered:
+        </p>
+
+        <h4>1. Defining Port Boundaries</h4>
+        <p>
+          The biggest challenge is deciding what constitutes a "port." Too many ports and you have over-abstraction. 
+          Too few and you lose the benefits. My rule of thumb: create ports for capabilities that could reasonably 
+          be implemented differently in different contexts.
+        </p>
+
+        <h4>2. Managing Transaction Boundaries</h4>
+        <p>
+          Database transactions often span multiple repositories. In a pure hexagonal approach, the core shouldn't 
+          know about transactions, but real systems need transactional consistency. The solution? Let adapters 
+          manage transaction boundaries while the core defines the operations that need to be atomic.
+        </p>
+
+        <h4>3. Error Handling Across Boundaries</h4>
+        <p>
+          Different adapters need different error handling strategies. A web adapter might return HTTP status codes, 
+          while a CLI adapter might exit with error codes. The core should define domain errors, and adapters should 
+          translate them appropriately.
+        </p>
+
+        <h3>A Practical Example: User Management Service</h3>
+        <p>
+          Let's look at a concrete example. Here's how I structured a user management service using hexagonal architecture:
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; font-size: 0.875rem;">
+<pre>src/
+├── core/
+│   ├── domain/
+│   │   ├── user.go
+│   │   └── errors.go
+│   ├── ports/
+│   │   ├── user_repository.go
+│   │   ├── email_service.go
+│   │   └── user_service.go
+│   └── services/
+│       └── user_service.go
+├── adapters/
+│   ├── db/
+│   │   └── postgres_user_repository.go
+│   ├── email/
+│   │   └── sendgrid_email_service.go
+│   └── web/
+│       └── user_handler.go
+└── cmd/
+    └── server/
+        └── main.go</pre>
+        </div>
+
+        <h3>Key Lessons Learned</h3>
+
+        <h4>Start Simple, Evolve Gradually</h4>
+        <p>
+          Don't try to implement perfect hexagonal architecture from day one. Start with a simple structure and 
+          add abstraction as you encounter real needs for flexibility. Over-engineering early is worse than 
+          under-engineering.
+        </p>
+
+        <h4>Focus on the Adapter Implementation</h4>
+        <p>
+          The quality of your hexagonal architecture is largely determined by how well you implement the adapters. 
+          They're the bridge between your clean core and the messy real world. Invest time in making them robust.
+        </p>
+
+        <h4>Don't Forget About Configuration</h4>
+        <p>
+          Configuration is often overlooked in hexagonal architecture discussions, but it's crucial. I use a 
+          dependency injection container to wire everything together, with configuration driving which adapters 
+          get instantiated.
+        </p>
+
+        <h3>When NOT to Use Hexagonal Architecture</h3>
+        <p>
+          Hexagonal architecture isn't always the right choice. Avoid it when:
+        </p>
+        <ul>
+          <li>Your system is simple and unlikely to change</li>
+          <li>You're building a prototype or MVP</li>
+          <li>Your team is new to the pattern and under time pressure</li>
+          <li>The abstraction overhead outweighs the benefits</li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        <p>
+          Hexagonal architecture is a powerful pattern, but like any tool, it requires skill and judgment to use 
+          effectively. The key is understanding that it's not about perfect theoretical purity—it's about creating 
+          systems that are easier to change, test, and maintain over time.
+        </p>
+
+        <p>
+          Start with the problems you're actually trying to solve, not with the pattern itself. If you find yourself 
+          fighting the architecture rather than being enabled by it, step back and reassess. Good architecture should 
+          make your life easier, not harder.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>Discussion</h2>
+        <p>
+          Have you implemented hexagonal architecture in your systems? What challenges did you face? 
+          I'd love to hear about your experiences and the trade-offs you've made.
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <blog-footer></blog-footer>
+</body>
+</html>
