@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain-Driven Design in Practice - The Agile Engineer</title>
+  <meta name="description" content="Practical lessons from applying Domain-Driven Design in real projects—what works, what doesn't, and when to use it.">
+
+  <!-- Professional CSS styling -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- Blog JavaScript -->
+  <script src="/js/blog.js"></script>
+</head>
+<body>
+  <blog-header></blog-header>
+
+  <main class="main-container">
+    <article class="content-page">
+      <div class="page-header">
+        <h1>Domain-Driven Design in Practice</h1>
+        <p>Beyond the blue book—what actually matters when applying DDD</p>
+      </div>
+
+      <div class="content-section">
+        <h2>The Gap Between Theory and Reality</h2>
+        <p>
+          Eric Evans' "Domain-Driven Design" is one of the most influential books in software architecture.
+          It's also one of the most misunderstood. Teams read about bounded contexts, aggregates, and
+          ubiquitous language, then struggle to apply these concepts to their actual codebases. The book
+          is dense, the examples are dated, and the patterns are often applied mechanically without
+          understanding the underlying principles.
+        </p>
+
+        <p>
+          After years of applying DDD across different domains—fintech, healthcare, e-commerce—I've
+          developed a more pragmatic view of what matters and what's often over-emphasized.
+        </p>
+
+        <h3>What Actually Matters</h3>
+
+        <h4>Ubiquitous Language</h4>
+        <p>
+          If you take only one thing from DDD, make it this. The idea is simple: developers and domain
+          experts should use the same terminology. When a business person says "order" and a developer
+          thinks "transaction record," you have a problem. When the code says <code>processEntity()</code>
+          but the business says "approve claim," you have a problem.
+        </p>
+
+        <p>
+          This isn't just about naming. It's about shared understanding. When your code reflects the
+          language of the business, several things happen:
+        </p>
+        <ul>
+          <li>Requirements discussions become more precise</li>
+          <li>Bugs are easier to explain and reproduce</li>
+          <li>New team members onboard faster</li>
+          <li>The code becomes documentation</li>
+        </ul>
+
+        <p>
+          Invest time in getting the language right. Push back when someone wants to call something
+          a "widget" or "item" because it's generic. Find out what the business actually calls it.
+        </p>
+
+        <h4>Bounded Contexts</h4>
+        <p>
+          A bounded context is a boundary within which a particular model applies. The same word can
+          mean different things in different contexts. A "customer" in the sales context might have
+          contact information and purchase history. A "customer" in the billing context might have
+          payment methods and invoices. Trying to create one unified "Customer" model that serves
+          both contexts leads to a bloated, confusing mess.
+        </p>
+
+        <p>
+          In practice, bounded contexts often align with:
+        </p>
+        <ul>
+          <li>Team boundaries</li>
+          <li>Business capabilities</li>
+          <li>Separately deployable services</li>
+          <li>Different data storage needs</li>
+        </ul>
+
+        <p>
+          The key insight is that it's okay—even desirable—to have different representations of the
+          same real-world concept in different parts of your system. What matters is being explicit
+          about the boundaries and how contexts communicate.
+        </p>
+
+        <h3>What's Often Over-Emphasized</h3>
+
+        <h4>Tactical Patterns</h4>
+        <p>
+          Much of the DDD discourse focuses on tactical patterns: entities, value objects, aggregates,
+          repositories, domain services, factories. These can be useful, but they're often applied
+          dogmatically without understanding the problems they solve.
+        </p>
+
+        <p>
+          I've seen teams spend weeks debating whether something should be an entity or a value object,
+          or whether a particular operation belongs in a domain service or an aggregate method. Meanwhile,
+          they haven't talked to a domain expert in months and their model is drifting further from reality.
+        </p>
+
+        <p>
+          The tactical patterns are tools, not rules. Use them when they help, ignore them when they don't.
+          An anemic domain model isn't a sin if your domain is genuinely simple.
+        </p>
+
+        <h4>Complex Aggregate Design</h4>
+        <p>
+          Aggregates are consistency boundaries. The idea is that changes within an aggregate are
+          transactionally consistent, and references between aggregates are eventually consistent.
+          This is useful for thinking about where to draw lines in your domain model.
+        </p>
+
+        <p>
+          But I've seen teams create elaborate aggregate hierarchies that make simple operations
+          convoluted. If you need to load an entire object graph to change one field, something has
+          gone wrong. Keep aggregates small. Start with single entities and only group things together
+          when you have a genuine consistency requirement.
+        </p>
+
+        <h3>Practical Guidelines</h3>
+
+        <h4>Start with the Problem, Not the Pattern</h4>
+        <p>
+          Don't begin a project by designing bounded contexts and aggregates. Begin by understanding
+          the domain. Talk to the people who do the work. Watch them work. Ask why they do things
+          the way they do. The patterns will emerge from understanding.
+        </p>
+
+        <h4>Model in Code, Not in Diagrams</h4>
+        <p>
+          Domain models that live only in documentation rot quickly. The real model is the code.
+          Make your code expressive enough that it serves as the primary model. Use diagrams to
+          communicate and explore, but don't treat them as the source of truth.
+        </p>
+
+        <h4>Iterate Relentlessly</h4>
+        <p>
+          Your first model will be wrong. Your second model will be less wrong. Domain modeling is
+          a continuous process of refinement, not a one-time design phase. Build in time for
+          refactoring as your understanding deepens.
+        </p>
+
+        <h4>Context Mapping Matters More Than Internal Design</h4>
+        <p>
+          How bounded contexts interact is often more important than the internal design of any single
+          context. Spend time on integration patterns: how will contexts communicate? What's the
+          translation layer? Who owns the contract? These decisions have lasting consequences.
+        </p>
+
+        <h3>When DDD Makes Sense</h3>
+        <p>
+          DDD is not universally applicable. It shines in certain conditions:
+        </p>
+        <ul>
+          <li><strong>Complex domains:</strong> If the business rules are intricate and nuanced, DDD helps manage that complexity</li>
+          <li><strong>Long-lived systems:</strong> The investment in modeling pays off over years, not months</li>
+          <li><strong>Available domain experts:</strong> You need people who understand the business and will collaborate</li>
+          <li><strong>Team willingness:</strong> DDD requires buy-in from developers who want to understand the domain, not just write code</li>
+        </ul>
+
+        <h3>When to Skip It</h3>
+        <p>
+          Don't force DDD when:
+        </p>
+        <ul>
+          <li>The domain is genuinely simple (CRUD applications, simple data transformations)</li>
+          <li>You're building a short-lived prototype</li>
+          <li>You don't have access to domain experts</li>
+          <li>The team is already stretched thin and can't invest in learning</li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        <p>
+          Domain-Driven Design is fundamentally about building software that reflects and serves the
+          business domain. The patterns and practices are means to that end, not ends in themselves.
+          Focus on understanding the domain, speaking the language of the business, and being explicit
+          about boundaries. The rest is implementation detail.
+        </p>
+
+        <p>
+          If you're new to DDD, don't try to adopt everything at once. Start with ubiquitous language
+          and bounded contexts. See how they change the way you think about your system. The tactical
+          patterns can come later, if they come at all.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>Discussion</h2>
+        <p>
+          What's your experience with Domain-Driven Design? Have you found certain patterns more
+          valuable than others? I'd like to hear what's worked in your context.
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <blog-footer></blog-footer>
+</body>
+</html>
